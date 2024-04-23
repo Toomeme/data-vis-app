@@ -1,3 +1,12 @@
+const { response } = require('express');
+
+const query = require('./queryAPI');
+// In case you don't have top level await yet
+async function start(baseURL) {
+  const sharePointSite = await query.queryGraphApi(baseURL);
+  console.log(sharePointSite);
+}
+
 const getDaysPerMonth = (month,year) =>
 {
     days = new Date(year, month, 0).getDate();
@@ -36,6 +45,8 @@ function breakdownToDays(ob,month){
 
 function createKeyValuePairs(sheet,table)
 {
+    let baseURL = `/sites/a88811de-8894-4bd9-9931-73feea44227b/drives/b!3hGIqJSI2UuZMXP-6kQie5JM6iWqaKZBkLyQBNo792_M0fOy6sZmSYcsM2DcKSp5/items/016J73M3IDZ32GHELGJFH2ARVWF7KWGBXJ/workbook/worksheets/{${sheet}}/tables/{${table}}/range?$select=text`;
+    start(baseURL).then(() => console.log('Complete.'));
     let data = [
         [
             "Line Item",
@@ -173,7 +184,6 @@ function createKeyValuePairs(sheet,table)
             "100%"
         ]
     ]
-
             //define new object
             const o = {}
             //function to remove blank entries

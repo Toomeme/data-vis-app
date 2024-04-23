@@ -1,3 +1,6 @@
+// read in env settings
+require('dotenv').config();
+
 const express = require('express');
 const routes = require('./routes');
 
