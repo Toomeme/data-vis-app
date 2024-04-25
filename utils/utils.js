@@ -1,10 +1,18 @@
 const { response } = require('express');
 
+//function to remove blank entries
+const removeNullUndefined = obj => Object.entries(obj).reduce((a, [k, v]) => (v == null ? a : (a[k] = v, a)), {});
+//function to add new k/v pairs to an object
+const add = (obj, k, v) => Object.assign(obj, obj[k] 
+? { [k]: [].concat(obj[k], v) } 
+: { [k]: v });
+
 const query = require('./queryAPI');
 // In case you don't have top level await yet
 async function start(baseURL) {
   const sharePointSite = await query.queryGraphApi(baseURL);
-  console.log(sharePointSite);
+  //console.log(sharePointSite);
+  return sharePointSite;
 }
 
 const getDaysPerMonth = (month,year) =>
@@ -39,14 +47,35 @@ function breakdownToDays(ob,month){
           });
         }
       });
+      var daysPerMonth = getDaysPerMonth(month,2024);
+      var entryLength = -1;
+      for (const [key, value] of Object.entries(ob)) {
+        entryLength = value.length;
+        for ( var i = 0; i < daysPerMonth; i++ ) {
+            var newKey = `${key}-${i + 1}`;
+            add(ob, newKey, value);
+        }
+        delete ob[key];
+      };
+      if (entryLength > 0)
+      {
+        for ( var i = 0; i < daysPerMonth; i++ ) {
+        //add dates
+        var newDate = `Date-${i + 1}`;
+        let date = `${month}/${i + 1}/2024`;
+        for ( var k = 0; k < entryLength; k++ ) {
+        add(ob, newDate, date)}
+        }
+      }
       return ob;
 
 }
 
 function createKeyValuePairs(sheet,table)
 {
+    /*let apiData = {};
     let baseURL = `/sites/a88811de-8894-4bd9-9931-73feea44227b/drives/b!3hGIqJSI2UuZMXP-6kQie5JM6iWqaKZBkLyQBNo792_M0fOy6sZmSYcsM2DcKSp5/items/016J73M3IDZ32GHELGJFH2ARVWF7KWGBXJ/workbook/worksheets/{${sheet}}/tables/{${table}}/range?$select=text`;
-    start(baseURL).then(() => console.log('Complete.'));
+    start(baseURL).then((response) => {apiData = response; console.log(apiData)});*/
     let data = [
         [
             "Line Item",
@@ -186,12 +215,6 @@ function createKeyValuePairs(sheet,table)
     ]
             //define new object
             const o = {}
-            //function to remove blank entries
-            const removeNullUndefined = obj => Object.entries(obj).reduce((a, [k, v]) => (v == null ? a : (a[k] = v, a)), {});
-            //function to add new k/v pairs to an object
-            const add = (obj, k, v) => Object.assign(obj, obj[k] 
-              ? { [k]: [].concat(obj[k], v) } 
-              : { [k]: v });
 
             //define arrays from data, and init results array
             var keyArray = data[0],
