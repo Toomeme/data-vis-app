@@ -1,4 +1,3 @@
-const { response } = require('express');
 const query = require('./queryAPI');
 
 //function to remove blank entries
@@ -107,12 +106,15 @@ function useValue(data){
 }
 
 async function createKeyValuePairs(item, sheet, table, doBreakdown, month) {
-    let baseURL = `/sites/a88811de-8894-4bd9-9931-73feea44227b/drives/b!3hGIqJSI2UuZMXP-6kQie5JM6iWqaKZBkLyQBNo792_M0fOy6sZmSYcsM2DcKSp5/items/${item}/workbook/worksheets/{${sheet}}/tables/{${table}}/range?$select=text`;
+    //supports id key (128 bit hex) or name key (string)
+    let baseURL = `/sites/a88811de-8894-4bd9-9931-73feea44227b/drives/b!3hGIqJSI2UuZMXP-6kQie5JM6iWqaKZBkLyQBNo792_M0fOy6sZmSYcsM2DcKSp5/items/${item}/workbook/worksheets/${sheet}/tables/${table}/range?$select=text`;
     try {
+        //assign value once fetch completes
         let apiData = await start(baseURL);
         let data = apiData.text;
+        //if we're breaking into days
         if (doBreakdown){
-            breakdownJSON = useValue(data);
+            let breakdownJSON = useValue(data);
             return breakdownToDays(breakdownJSON, month);
         }
         else{

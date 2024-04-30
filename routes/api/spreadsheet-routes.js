@@ -6,7 +6,7 @@ const utils = require('../../utils/utils');
 
 router.get('/:item', async (req, res) => {
   const itemID = req.params.item;
-  const objResponse = await utils.createKeyValuePairs(itemID,"00000000-0001-0000-0100-000000000000","00000000-000C-0000-FFFF-FFFF0C000000",0,0);
+  const objResponse = await utils.createKeyValuePairs(itemID,"{00000000-0001-0000-0100-000000000000}","{00000000-000C-0000-FFFF-FFFF0C000000}",0,0);
   res.send(objResponse);
 })
 
