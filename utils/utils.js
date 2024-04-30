@@ -71,7 +71,7 @@ function breakdownToDays(ob, month) {
     };
     return ob;
 
-}
+};
 
 function useValue(data){
     //define new object
@@ -103,7 +103,7 @@ function useValue(data){
     //trim empty entries and output our object
     var newObj = removeNullUndefined(o);
     return newObj;
-}
+};
 
 async function createKeyValuePairs(item, sheet, table, doBreakdown, month) {
     //supports id key (128 bit hex) or name key (string)
