@@ -1,4 +1,5 @@
 const { response } = require('express');
+const query = require('./queryAPI');
 
 //function to remove blank entries
 const removeNullUndefined = obj => Object.entries(obj).reduce((a, [k, v]) => (v == null ? a : (a[k] = v, a)), {});
@@ -6,13 +7,16 @@ const removeNullUndefined = obj => Object.entries(obj).reduce((a, [k, v]) => (v 
 const add = (obj, k, v) => Object.assign(obj, obj[k]
     ? { [k]: [].concat(obj[k], v) }
     : { [k]: v });
-
-const query = require('./queryAPI');
 // In case you don't have top level await yet
-async function start(baseURL) {
-    const sharePointSite = await query.queryGraphApi(baseURL);
-    //console.log(sharePointSite);
-    return sharePointSite;
+function start(baseURL) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const sharePointSite = await query.queryGraphApi(baseURL);
+            resolve(sharePointSite);
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 const getDaysPerMonth = (month, year) => {
@@ -29,7 +33,7 @@ function breakdownToDays(ob, month) {
     });
     //get keys from the object we passed in
     keysToChange = Object.keys(ob);
-    //modify any key that contains a dollar amount
+    //modify any the value of key that contains a dollar amount
     keysToChange.forEach(key => {
         if (ob[key]) {
             valueArray = ob[key];
@@ -70,147 +74,7 @@ function breakdownToDays(ob, month) {
 
 }
 
-function createKeyValuePairs(sheet, table) {
-    let apiData = {};
-    let baseURL = `/sites/a88811de-8894-4bd9-9931-73feea44227b/drives/b!3hGIqJSI2UuZMXP-6kQie5JM6iWqaKZBkLyQBNo792_M0fOy6sZmSYcsM2DcKSp5/items/016J73M3IDZ32GHELGJFH2ARVWF7KWGBXJ/workbook/worksheets/{${sheet}}/tables/{${table}}/range?$select=text`;
-    start(baseURL).then((response) => { apiData = response; console.log(apiData) });
-    let data = [
-        [
-            "Line Item",
-            "PO FY24 Approved",
-            "EG Planned to spend",
-            "Amount paid",
-            "FY 24Difference Accting Approved vs. EG Planned to spend",
-            "FY24 Difference EG Planned to spendvs. Amt paid",
-            "Percentage of Budget"
-        ],
-        [
-            "Advertising - 51000",
-            "$2,982,600.00",
-            "$3,309,934.62",
-            "$2,503,049.51",
-            "-$327,334.62",
-            "$806,885.11",
-            "81%"
-        ],
-        [
-            "Books & Program Supplies  - 54000",
-            "$0.00",
-            "$0.00",
-            "$0.00",
-            "$0.00",
-            "$0.00",
-            "0%"
-        ],
-        [
-            "Dues & Fees - 57000",
-            "$0.00",
-            "$0.00",
-            "$0.00",
-            "$0.00",
-            "$0.00",
-            "0%"
-        ],
-        [
-            "Entertainment Expense - 58500",
-            "$4,000.00",
-            "$7,000.00",
-            "$6,469.25",
-            "-$3,000.00",
-            "$530.75",
-            "0%"
-        ],
-        [
-            "Office Expense - 63060",
-            "$7,500.00",
-            "$4,500.00",
-            "$2,266.00",
-            "$3,000.00",
-            "$2,234.00",
-            "0%"
-        ],
-        [
-            "Postage - 63070",
-            "$96,240.00",
-            "$73,840.00",
-            "$37,212.30",
-            "$22,400.00",
-            "$36,627.70",
-            "3%"
-        ],
-        [
-            "Printing/Mailing Service - 65200",
-            "$130,815.00",
-            "$99,402.85",
-            "$56,532.48",
-            "$31,412.15",
-            "$42,870.37",
-            "4%"
-        ],
-        [
-            "Professional Fees - Consulting - 66030",
-            "$392,265.00",
-            "$374,905.00",
-            "$260,023.95",
-            "$17,360.00",
-            "$114,881.05",
-            "11%"
-        ],
-        [
-            "Promotion - 66200",
-            "$4,000.00",
-            "$4,000.00",
-            "$3,511.52",
-            "$0.00",
-            "$488.48",
-            "0%"
-        ],
-        [
-            "Staff Professional Development - 70000",
-            "$2,000.00",
-            "$2,000.00",
-            "$0.00",
-            "$0.00",
-            "$2,000.00",
-            "0%"
-        ],
-        [
-            "Student Expense - 71000",
-            "$43,950.00",
-            "$43,950.00",
-            "$9,316.00",
-            "$0.00",
-            "$34,634.00",
-            "1%"
-        ],
-        [
-            "Travel - 77000",
-            "$2,000.00",
-            "$1,250.00",
-            "$562.00",
-            "$750.00",
-            "$688.00",
-            "0%"
-        ],
-        [
-            "Spend (not including advertising)",
-            "$682,770.00",
-            "$610,847.85",
-            "$375,893.50",
-            "$71,922.15",
-            "$234,954.35",
-            "19%"
-        ],
-        [
-            "Spend (including advertising)",
-            "$3,665,370.00",
-            "$3,920,782.47",
-            "$2,878,943.01",
-            "-$255,412.47",
-            "$1,041,839.46",
-            "100%"
-        ]
-    ];
+function useValue(data){
     //define new object
     const o = {};
 
@@ -222,6 +86,7 @@ function createKeyValuePairs(sheet, table) {
         length = data.length - 1;
 
     //take as many elements of the flattened array as there are object keys, offset by current position, then push to results
+    //this sucks btw, but the data we actually pulled is discrete arrays, so the other option was using spread/rest operators
     for (var row = 0; row < length; row++) {
         var array2 = dataFlat.slice(keyArray.length * (row + 1));
         var array2Sliced = array2.slice(0, keyArray.length);
@@ -238,8 +103,27 @@ function createKeyValuePairs(sheet, table) {
     );
     //trim empty entries and output our object
     var newObj = removeNullUndefined(o);
-
     return newObj;
+}
+
+async function createKeyValuePairs(item, sheet, table, doBreakdown, month) {
+    let baseURL = `/sites/a88811de-8894-4bd9-9931-73feea44227b/drives/b!3hGIqJSI2UuZMXP-6kQie5JM6iWqaKZBkLyQBNo792_M0fOy6sZmSYcsM2DcKSp5/items/${item}/workbook/worksheets/{${sheet}}/tables/{${table}}/range?$select=text`;
+    try {
+        let apiData = await start(baseURL);
+        let data = apiData.text;
+        if (doBreakdown){
+            breakdownJSON = useValue(data);
+            return breakdownToDays(breakdownJSON, month);
+        }
+        else{
+        return useValue(data);
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return {}; // Return an empty object in case of an error
+    }
 };
+
+
 
 module.exports = { getDaysPerMonth, createKeyValuePairs, breakdownToDays };
