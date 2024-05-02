@@ -1,6 +1,5 @@
 // read in env settings
 require('dotenv').config();
-var http = require('http');
 
 const express = require('express');
 const routes = require('./routes');
@@ -13,6 +12,4 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(routes);
 
-var httpServer = http.createServer(app);
-
-httpServer.listen(PORT, () => console.log(`App listening on port ${PORT}!`));
+app.listen(PORT, () => console.log(`App listening on port ${PORT}!`));
