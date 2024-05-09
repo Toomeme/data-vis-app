@@ -25,13 +25,13 @@ const getDaysPerMonth = (month, year) => {
 
 function breakdownToDays(ob, month) {
 
-    // Create our number formatter.
+    /*// Create our number formatter.
     const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-    });
+    });*/
     //get keys from the object we passed in
-    keysToChange = Object.keys(ob);
+    let keysToChange = Object.keys(ob);
     //modify any the value of key that contains a dollar amount
     keysToChange.forEach(key => {
         if (ob[key]) {
@@ -43,8 +43,17 @@ function breakdownToDays(ob, month) {
                     //parse into an int
                     var backToNumber = parseInt(string);
                     //divide by days in the month we passed in, rounded to nearest tenth, then formatted to USD
-                    var dollarAmount = formatter.format(Math.round((backToNumber / getDaysPerMonth(month, 2024)) * 100.0) / 100.0);
+                    var dollarAmount = Math.round((backToNumber / getDaysPerMonth(month, 2024)) * 100.0) / 100.0;
                     valueArray[index] = dollarAmount;
+                }
+
+                else if (number.includes('%')) {
+                    //strip any character that isnt a number or decimal point
+                    var percentString = number.replace(/[^0-9.]/g, '');
+                    //parse into an int
+                    var percentToNumber = parseInt(percentString);
+                    //divide by days in the month we passed in, rounded to nearest tenth, then formatted to USD
+                    valueArray[index] = percentToNumber;
                 }
             });
         }
@@ -118,7 +127,37 @@ async function createKeyValuePairs(item, sheet, table, doBreakdown, month) {
             return breakdownToDays(breakdownJSON, month);
         }
         else{
-        return useValue(data);
+
+            //get keys from the object we passed in
+            let ob = useValue(data);
+            let keysToChange = Object.keys(ob);
+            //modify any the value of key that contains a dollar amount
+            keysToChange.forEach(key => {
+                if (ob[key]) {
+                    valueArray = ob[key];
+                    valueArray.forEach((number, index) => {
+                        if (number.includes('$')) {
+                            //strip any character that isnt a number or decimal point
+                            var string = number.replace(/[^0-9.]/g, '');
+                            //parse into an int
+                            var backToNumber = parseInt(string);
+                            //divide by days in the month we passed in, rounded to nearest tenth, then formatted to USD
+                            var dollarAmount = Math.round(backToNumber * 100.0) / 100.0;
+                            valueArray[index] = dollarAmount;
+                        }
+
+                        else if (number.includes('%')) {
+                            //strip any character that isnt a number or decimal point
+                            var percentString = number.replace(/[^0-9.]/g, '');
+                            //parse into an int
+                            var percentToNumber = parseInt(percentString);
+                            //divide by days in the month we passed in, rounded to nearest tenth, then formatted to USD
+                            valueArray[index] = percentToNumber;
+                        }
+                    });
+                }
+            });
+        return ob;
         }
     } catch (error) {
         console.error("Error fetching data:", error);
