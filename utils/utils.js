@@ -89,7 +89,7 @@ function useValue(data){
     //define arrays from data, and init results array
     var keyArray = data[0],
         result = [],
-        slicedData = data.slice(1),
+        slicedData = data,
         dataFlat = slicedData.flat(),
         length = data.length - 1;
 
