@@ -130,11 +130,13 @@ async function createKeyValuePairs(item, sheet, table, doBreakdown, month) {
 
             //get keys from the object we passed in
             let ob = useValue(data);
+            //console.log(ob);
             let keysToChange = Object.keys(ob);
             //modify any the value of key that contains a dollar amount
             keysToChange.forEach(key => {
                 if (ob[key]) {
                     valueArray = ob[key];
+                    if (valueArray.constructor === Array){
                     valueArray.forEach((number, index) => {
                         if (number.includes('$')) {
                             //strip any character that isnt a number or decimal point
@@ -156,6 +158,7 @@ async function createKeyValuePairs(item, sheet, table, doBreakdown, month) {
                         }
                     });
                 }
+            }
             });
         return ob;
         }
