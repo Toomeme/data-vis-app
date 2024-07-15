@@ -1,5 +1,4 @@
 const query = require('./queryAPI');
-const {distance, closest} = require('fastest-levenshtein');
 
 //function to remove blank entries
 const removeNullUndefined = obj => Object.entries(obj).reduce((a, [k, v]) => (v == null ? a : (a[k] = v, a)), {});
@@ -19,18 +18,37 @@ function start(baseURL) {
     });
 }
 
-function findClosestKey(string,keys){
-    return closest(string, keys);
+function processArray(arr) {
+    return arr.map(item => item.toString().replace('[', '').replace(']', ''));
 }
-
-function processArray(str) {
-    return str.replace('[', '').replace(']', '').split(',');
-}
-
 function processData(report) {
+    const result = [];
+    const keys = Object.keys(report);
+
+    keys.forEach(key => {
+        if (Array.isArray(report[key])) {
+            const processedArray = processArray(report[key]).map((item, index) => ({
+                item_number: index + 1,
+                [key.toLowerCase().replace(/ /g, '_').replace(/"/g, '')]: item.replace(/"/g, '')
+            }));
+            
+            processedArray.forEach(processedItem => {
+                const existingItem = result.find(item => item.item_number === processedItem.item_number);
+                if (existingItem) {
+                    Object.assign(existingItem, processedItem);
+                } else {
+                    result.push(processedItem);
+                }
+            });
+        }
+    });
+
+    return result;
+}
+/*function processData(report) {
 
     const reportKeys = report.keys;
-    
+
     const lineItems = processArray(report["Line Item"]).map((item, index) => ({
         item_number: index + 1,
         line_item: item.replace(/"/g, '')
@@ -82,10 +100,10 @@ function processData(report) {
 }
 
 // Usage
-fetchData().then(report => {
+/*fetchData().then(report => {
     const processedData = processData(report);
     console.log(processedData);
-});
+});*/
 
 
 const getDaysPerMonth = (month, year) => {
@@ -230,7 +248,7 @@ async function createKeyValuePairs(item, sheet, table, doBreakdown, month) {
                 }
             }
             });
-        return ob;
+        return processData(ob);
         }
     } catch (error) {
         console.error("Error fetching data:", error);
