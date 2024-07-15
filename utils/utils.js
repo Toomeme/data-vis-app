@@ -29,7 +29,7 @@ function processData(report) {
         if (Array.isArray(report[key])) {
             const processedArray = processArray(report[key]).map((item, index) => ({
                 item_number: index + 1,
-                [key.toLowerCase().replace(/ /g, '_').replace(/"/g, '')]: item.replace(/"/g, '')
+                [key.toLowerCase().trim().replace(/ /g, '_').replace(/"/g, '')]: item.replace(/"/g, '')
             }));
             
             processedArray.forEach(processedItem => {
