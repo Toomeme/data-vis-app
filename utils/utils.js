@@ -45,66 +45,6 @@ function processData(report) {
 
     return result;
 }
-/*function processData(report) {
-
-    const reportKeys = report.keys;
-
-    const lineItems = processArray(report["Line Item"]).map((item, index) => ({
-        item_number: index + 1,
-        line_item: item.replace(/"/g, '')
-    }));
-
-    const poFy24Approved = processArray(report["PO FY24 Approved"]).map((item, index) => ({
-        item_number: index + 1,
-        po_fy24_approved: item.replace(/"/g, '')
-    }));
-
-    const egPlannedToSpend = processArray(report["EG Planned to spend"]).map((item, index) => ({
-        item_number: index + 1,
-        eg_planned_to_spend: item.replace(/"/g, '')
-    }));
-
-    const amountPaid = processArray(report["Amount paid"]).map((item, index) => ({
-        item_number: index + 1,
-        amount_paid: item.replace(/"/g, '')
-    }));
-
-    const fy24DiffAcctingVsEgPlanned = processArray(report["FY 24 Difference Accting Approved vs. EG Planned to spend"]).map((item, index) => ({
-        item_number: index + 1,
-        fy_24_difference_accting_approved_vs_eg_planned_to_spend: item.replace(/"/g, '')
-    }));
-
-    const fy24DiffEgPlannedVsAmtPaid = processArray(report["FY24 Difference EG Planned to spend vs. Amt paid"]).map((item, index) => ({
-        item_number: index + 1,
-        fy24_difference_eg_planned_to_spend_vs_amt_paid: item.replace(/"/g, '')
-    }));
-
-    const percentageOfBudget = processArray(report["Percentage of Budget"]).map((item, index) => ({
-        item_number: index + 1,
-        percentage_of_budget: item.replace(/"/g, '')
-    }));
-
-    // Join data by item_number
-    const result = lineItems.map(item => ({
-        item_number: item.item_number,
-        "Line Item": item.line_item,
-        "PO FY24 Approved": poFy24Approved.find(po => po.item_number === item.item_number).po_fy24_approved,
-        "EG Planned to spend": egPlannedToSpend.find(eg => eg.item_number === item.item_number).eg_planned_to_spend,
-        "Amount paid": amountPaid.find(ap => ap.item_number === item.item_number).amount_paid,
-        "FY 24 Difference Accting Approved vs. EG Planned to spend": fy24DiffAcctingVsEgPlanned.find(diff => diff.item_number === item.item_number).fy_24_difference_accting_approved_vs_eg_planned_to_spend,
-        "FY24 Difference EG Planned to spend vs. Amt paid": fy24DiffEgPlannedVsAmtPaid.find(diff => diff.item_number === item.item_number).fy24_difference_eg_planned_to_spend_vs_amt_paid,
-        "Percentage of Budget": percentageOfBudget.find(pob => pob.item_number === item.item_number).percentage_of_budget
-    }));
-
-    return result;
-}
-
-// Usage
-/*fetchData().then(report => {
-    const processedData = processData(report);
-    console.log(processedData);
-});*/
-
 
 const getDaysPerMonth = (month, year) => {
     days = new Date(year, month, 0).getDate();
@@ -124,6 +64,7 @@ function breakdownToDays(ob, month) {
     keysToChange.forEach(key => {
         if (ob[key]) {
             valueArray = ob[key];
+            if (Array.isArray(valueArray)){
             valueArray.forEach((number, index) => {
                 if (number.includes('$')) {
                     //strip any character that isnt a number or decimal point
@@ -145,6 +86,7 @@ function breakdownToDays(ob, month) {
                 }
             });
         }
+    }
     });
     var daysPerMonth = getDaysPerMonth(month, 2024);
     var entryLength = -1;
