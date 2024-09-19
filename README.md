@@ -1,4 +1,4 @@
-# E-Commerce Backend (ORM)
+# Data Visualization API
   ![badge](https://img.shields.io/badge/license-WTFPL-brightgreen)<br />
 ## Description
 An Express.js and Microsoft Graph API app to take workbooks and format them to JSON for import into the Grow platform.
